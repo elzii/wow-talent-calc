@@ -86,7 +86,10 @@ export default class FullScreenSwiper extends React.Component {
   renderPage = ({ item, index }) => {
     const { pages } = this.props
     const { width } = this.state
-    const { component: PageComponent, ...rest } = item
+    const {
+      component: PageComponent,
+      ...rest
+    } = item
 
     return <View
       style={[styles.page, {
@@ -106,35 +109,29 @@ export default class FullScreenSwiper extends React.Component {
     const { width } = this.state
     const { pages } = this.props
 
-    return <SafeAreaView style={[styles.container]}>
-      {
-        // <ScrollView
-        //   ref={node => this.scrollViewRef = node}
-        //   contentContainerStyle={[styles.wrapper, { }]}
-        //   horizontal={true}
-        //   showsHorizontalScrollIndicator={false}
-        //   pagingEnabled={true}
-        //   onMomentumScrollEnd={this.onMomentumScrollEnd}
-        // >
-        //   {this.renderPages()}
-        // </ScrollView>
-      }
+    // <ScrollView
+    //   ref={node => this.scrollViewRef = node}
+    //   contentContainerStyle={[styles.wrapper, { }]}
+    //   horizontal={true}
+    //   showsHorizontalScrollIndicator={false}
+    //   pagingEnabled={true}
+    //   onMomentumScrollEnd={this.onMomentumScrollEnd}
+    // >
+    //   {this.renderPages()}
+    // </ScrollView>
 
-      {
-        <FlatList
-          keyExtractor={(item, index) => `page-${index}`}
-          data={pages}
-          renderItem={this.renderPage}
-          horizontal
-          pagingEnabled={true}
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={[styles.wrapper, {}]}
-          viewabilityConfig={this.viewabilityConfig}
-          onViewableItemsChanged={this.onViewableItemsChanged}
-          windowSize={6}
-        />
-      }
-    </SafeAreaView>
+    return <FlatList
+      keyExtractor={(item, index) => `page-${index}`}
+      data={pages}
+      renderItem={this.renderPage}
+      horizontal
+      pagingEnabled={true}
+      showsHorizontalScrollIndicator={false}
+      contentContainerStyle={[styles.wrapper, {}]}
+      viewabilityConfig={this.viewabilityConfig}
+      onViewableItemsChanged={this.onViewableItemsChanged}
+      windowSize={6}
+    />
   }
 }
 

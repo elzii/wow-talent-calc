@@ -2,17 +2,10 @@ import React from 'react';
 import { Alert, SafeAreaView, Dimensions, TouchableOpacity, StyleSheet, Text, View, ScrollView, Image} from 'react-native';
 import { BlurView } from 'expo'
 
+import { getTreeBackgroundImagePath } from './utils'
+import { Container, Row } from './common'
 import Talent from './Talent'
 import * as constants from './constants'
-
-const Row = ({ children, style, ...props }) => {
-  return <View
-    style={[styles.row, style, {}]}
-  >
-    {children}
-  </View>
-}
-
 
 
 const Empty = ({ boxSize=constants.BOX_SIZE, ...props }) => {
@@ -20,11 +13,13 @@ const Empty = ({ boxSize=constants.BOX_SIZE, ...props }) => {
 }
 
 
-const Layout = ({ data, classInfo, ...props }) => {
-
-  const NUMBER_OF_ROWS = 7
-  const { id, name, skills } = data
-
+export default function Layout ({
+  data,
+  classInfo,
+  onPressTalent,
+  ...props
+}) {
+  const { id, name, skillPoints, skills } = data
 
   const rows = [ ...new Set(skills.map(({ position }) => position[0])) ].sort()
   const maxRows = Math.max( ...rows)
@@ -38,9 +33,7 @@ const Layout = ({ data, classInfo, ...props }) => {
   })
 
 
-  return <View
-    style={[styles.container, {} ]}
-  >
+  return <Container>
 
     <Image source={{ uri: backgroundImageSource }} style={{
       ...StyleSheet.absoluteFillObject,
@@ -73,7 +66,9 @@ const Layout = ({ data, classInfo, ...props }) => {
                 key={`talent-${row}-${col}-${talent.id}`}
                 classInfo={classInfo}
                 tree={name}
-                onPress={() => Alert.alert(JSON.stringify(talent, null, 2))}
+                skillPointsInTree={skillPoints}
+                // onPress={() => Alert.alert(JSON.stringify(talent, null, 2))}
+                onPress={() => onPressTalent({ tree: name, talent })}
                 {...talent}
               />
             } else {
@@ -87,32 +82,10 @@ const Layout = ({ data, classInfo, ...props }) => {
     }
 
 
-  </View>
+  </Container>
 }
 
-
-export function getTreeBackgroundImagePath({
-  classType = 'Warrior',
-  tree = 'Fury',
-  basePath = 'https://s3.amazonaws.com/wow-talent-calc/backgrounds'
-}) {
-  return `${basePath}/background-${classType.toLowerCase()}-${tree.replace(/\s/g, '-').toLowerCase()}.jpg`;
-}
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  row: {
-    flex: 1,
-    flexDirection: 'row',
-    justifyContent: 'space-evenly',
-    alignItems: 'center',
-    width: '100%'
-  },
 
 })
-
-export default Layout

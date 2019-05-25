@@ -1,20 +1,22 @@
 import React from 'react';
 import { Alert, SafeAreaView, Dimensions, TouchableOpacity, StyleSheet, Text, View, ScrollView } from 'react-native';
+import Immutable from 'immutable'
 
 import FullScreenSwiper from '../FullScreenSwiper'
 
 import Layout from './Layout'
+import Header from './Header'
 
-import DATA from '../../store/datasets/talent-data.json'
-
-const CLASSES = DATA['classes']
+import TALENT_DATA from '../../store/datasets/talents/index.js'
 
 
-export default class TalentCalcBeta extends React.Component {
+// export default () => <View />
+
+export default class TalentCalcBeta extends React.PureComponent {
 
   static defaultProps = {
-    pages: Array(3).fill().map(x => ({ component: Layout })),
-    classes: CLASSES
+    // pages: Array(3).fill().map(x => ({ component: Layout })),
+    name: 'Warrior',
   }
 
 
@@ -23,47 +25,106 @@ export default class TalentCalcBeta extends React.Component {
 
     const { width, height } = Dimensions.get('window')
 
-    const activeClass = 'Hunter'
+    const activeClass = this.props.navigation.getParam('activeClass', null)
+
+    const talentData = TALENT_DATA.find(({ name }) => name === activeClass)
+
+    // const talentTrees = Object.assign({}, ...talentData.talentTrees.map(tree => {
+    //   return {
+    //     [tree.name]: {
+    //       ...tree
+    //     }
+    //   }
+    // }))
+
+    const { talentTrees: trees, ...classInfo } = talentData
 
     this.state = {
-      width,
-      height,
+      // width,
+      // height,
 
-      pages: props.pages.map((page,i) => {
-        const data = props.classes.find(({ name }) => name === activeClass)
-        const { talentTrees, ...rest } = data
-        return {
-          ...page,
-          classInfo: rest,
-          data: data.talentTrees[i]
-        }
-      }),
-
-      activeClass
+      talentData: Immutable.fromJS(talentData)
     }
-
   }
 
-  onPressTalent = event => {
+
+  onPressTalent = ({ tree, talent }) => {
+    const { talentData } = this.state
+
+    const talentDataJS = talentData.toJS()
+
+    const currentTreeIndex = talentDataJS.talentTrees
+      .findIndex(({ name }) => name === tree)
+
+    const currentSkillIndex = talentDataJS.talentTrees[currentTreeIndex].skills
+      .findIndex(({ id }) => id === talent.id)
+
+
+    const path = [
+      'talentTrees',
+      currentTreeIndex,
+      'skills',
+      currentSkillIndex,
+    ]
+
+    const canRankUp = (talentData.getIn([ ...path, 'maxRank' ]) > talentData.getIn([ ...path, 'currentRank' ]))
+
+    const nextState = talentData
+      // Update total skill points spent
+      .setIn(
+        ['availableSkillPoints'],
+        canRankUp ? talentDataJS.availableSkillPoints - 1 : talentDataJS.availableSkillPoints
+      )
+      // Update skill points in tree
+      .setIn(
+        ['talentTrees', currentTreeIndex, 'skillPoints'],
+        canRankUp
+          ? talentData.getIn(['talentTrees', currentTreeIndex, 'skillPoints']) + 1
+          : talentData.getIn(['talentTrees', currentTreeIndex, 'skillPoints'])
+      )
+      // Update current rank of talent
+      .setIn(
+        [ ...path, 'currentRank' ],
+        canRankUp
+          ? talentData.getIn([ ...path, 'currentRank' ]) + 1
+          : talentData.getIn([ ...path, 'currentRank' ])
+
+      )
+
+
+    this.setState({ talentData: nextState })
 
   }
 
   render() {
-    const { width, pages, activeClass } = this.state
-    const { classes } = this.props
-    const data = classes.find(({ name }) => name === activeClass)
-    const { name } = data
+    const {
+      pointsUsed,
+      talentData,
+    } = this.state
+
+    const { talentTrees, ...classInfo } = talentData.toJS()
+
+    const pages = talentTrees.map((tree,i) => {
+      return {
+        component: Layout,
+        classInfo: classInfo,
+        onPressTalent: this.onPressTalent,
+        data: tree
+      }
+    })
+
 
     return <SafeAreaView style={[styles.container]}>
 
-      <View style={[styles.header]}>
-        <Text style={[styles.headerText]}>
-          {data.name}
-        </Text>
-      </View>
-      <FullScreenSwiper
-        pages={pages}
+      <Header
+        availableSkillPoints={talentData.get('availableSkillPoints')}
       />
+
+      {
+        <FullScreenSwiper
+          pages={pages}
+        />
+      }
 
     </SafeAreaView>
   }

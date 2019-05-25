@@ -7,10 +7,20 @@ const PointsBadge = ({ maxPoints, points }) => {
     ? { color: 'green' }
     : { color: 'yellow' }
 
-  return <View style={[styles.container, {
-
-  }]}>
-    <Text style={{ fontSize: 12, fontWeight: 'bold', ...conditionalStyles }}>{points}</Text>
+  return <View style={[
+    styles.container,
+    (points > 0 && points < maxPoints) ? { borderColor: 'green' } : {},
+    points === maxPoints ? { borderColor: 'yellow' } : {}
+  ]}>
+    <Text
+      style={[
+        styles.text,
+        (points > 0 && points < maxPoints) ? { color: 'green' } : { color: '#f9f9f9' },
+        points === maxPoints ? { color: 'yellow' } : {}
+      ]}
+    >
+      {points} / {maxPoints}
+    </Text>
   </View>
 }
 
@@ -23,11 +33,16 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: -8,
     right: -8,
-    width: 20,
+    // width: 40,
     height: 20,
+    paddingHorizontal: 3,
     borderRadius: 2,
     borderWidth: 2,
-    borderColor: 'yellow',
+    borderColor: 'transparent',
     backgroundColor: '#333',
   },
+  text: {
+    fontSize: 12,
+    fontWeight: 'bold',
+  }
 })
