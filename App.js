@@ -1,5 +1,6 @@
 import React from 'react'
 import { StyleSheet, Text, View, Image, TouchableHighlight } from 'react-native'
+import { ScreenOrientation } from 'expo'
 
 import { createAppContainer, createStackNavigator, createBottomTabNavigator, withNavigation } from 'react-navigation'
 
@@ -10,6 +11,10 @@ import Debug from './screens/Debug'
 export class Home extends React.Component {
   static navigationOptions = {
     title: 'Home'
+  }
+
+  componentDidMount() {
+    ScreenOrientation.allowAsync(ScreenOrientation.Orientation.LANDSCAPE)
   }
 
   render() {

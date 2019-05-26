@@ -4,6 +4,7 @@ import { View, StyleSheet, } from 'react-native';
 export const Container = ({ children, style, ...props }) => {
   return <View
     style={[styles.container, style, {}]}
+    {...props}
   >
     {children}
   </View>
@@ -12,6 +13,7 @@ export const Container = ({ children, style, ...props }) => {
 export const Row = ({ children, style, ...props }) => {
   return <View
     style={[styles.row, style, {}]}
+    {...props}
   >
     {children}
   </View>
