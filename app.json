@@ -1,11 +1,15 @@
 {
   "expo": {
-    "name": "talent-calc",
-    "description": "This project is really great.",
-    "slug": "talent-calc",
+    "name": "wow-talent-calc",
+    "description": "",
+    "slug": "wow-talent-calc",
     "privacy": "public",
     "sdkVersion": "31.0.0",
-    "platforms": ["ios", "android"],
+    "bundleIdentifier": "com.elzi.wowtalentcalc",
+    "platforms": [
+      "ios",
+      "android"
+    ],
     "version": "1.0.0",
     "icon": "./assets/icon.png",
     "splash": {

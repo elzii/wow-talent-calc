@@ -1,6 +1,8 @@
 import React from 'react';
 import { Alert, SafeAreaView, Dimensions, TouchableOpacity, StyleSheet, Text, View, ScrollView, Image} from 'react-native';
-import { BlurView } from 'expo'
+import { BlurView, Haptic } from 'expo'
+// import { ForceTouchGestureHandler } from 'react-native-gesture-handler'
+
 
 import { getTreeBackgroundImagePath } from './utils'
 import { Container, Row } from './common'
@@ -34,7 +36,15 @@ export default class Layout extends React.Component {
     })
 
     if ( enabled ) {
+      Haptic.impact(Haptic.ImpactFeedbackStyle.Light)
       this.props.onPressTalent({ tree: name, talent })
+    }
+  }
+
+  onLongPress = ({ isTopHalf, name, talent, enabled }) => {
+    if ( enabled ) {
+      Haptic.impact(Haptic.ImpactFeedbackStyle.Light)
+      this.props.onPressTalent({ tree: name, talent, decrement: true })
     }
   }
 
@@ -124,6 +134,7 @@ export default class Layout extends React.Component {
                   skillPointsInTree={skillPoints}
                   // onPress={() => Alert.alert(JSON.stringify(talent, null, 2))}
                   onPress={({ isTopHalf }) => this.onPress({ isTopHalf, name, talent, enabled })}
+                  onLongPress={({ isTopHalf }) => this.onLongPress({ isTopHalf, name, talent, enabled })}
                   {...talent}
                   enabled={enabled}
                 />

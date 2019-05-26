@@ -1,11 +1,15 @@
 import React from 'react';
-import { Alert, SafeAreaView, Dimensions, TouchableOpacity, StyleSheet, Text, View, ScrollView } from 'react-native';
+import { Alert, Dimensions, TouchableOpacity, StyleSheet, Text, View, ScrollView } from 'react-native';
 import Immutable from 'immutable'
+import { SafeAreaView } from 'react-navigation'
+
+
+
 
 import FullScreenSwiper from '../FullScreenSwiper'
 
 import Layout from './Layout'
-import Header from './Header'
+
 
 import TALENT_DATA from '../../store/datasets/talents/index.js'
 
@@ -25,17 +29,10 @@ export default class TalentCalcBeta extends React.PureComponent {
 
     const { width, height } = Dimensions.get('window')
 
-    const activeClass = this.props.navigation.getParam('activeClass', null)
+    // const activeClass = this.props.navigation.getParam('activeClass', 'Warrior')
+    const activeClass = this.props.activeClass
 
     const talentData = TALENT_DATA.find(({ name }) => name === activeClass)
-
-    // const talentTrees = Object.assign({}, ...talentData.talentTrees.map(tree => {
-    //   return {
-    //     [tree.name]: {
-    //       ...tree
-    //     }
-    //   }
-    // }))
 
     const { talentTrees: trees, ...classInfo } = talentData
 
@@ -47,8 +44,15 @@ export default class TalentCalcBeta extends React.PureComponent {
     }
   }
 
+  // componentDidUpdate(prevProps) {
+  //   if ( prevProps.activeClass !== this.props.activeClass ) {
+  //     const talentData = TALENT_DATA.find(({ name }) => name === this.props.activeClass)
 
-  onPressTalent = ({ tree, talent }) => {
+  //     this.setState({ talentData: Immutable.fromJS(talentData) })
+  //   }
+  // }
+
+  onPressTalent = ({ tree, talent, decrement }) => {
     const { talentData } = this.state
 
     const talentDataJS = talentData.toJS()
@@ -68,27 +72,37 @@ export default class TalentCalcBeta extends React.PureComponent {
     ]
 
     const canRankUp = (talentData.getIn([ ...path, 'maxRank' ]) > talentData.getIn([ ...path, 'currentRank' ]))
+    const canRankDown = talentData.getIn([ ...path, 'currentRank' ]) > 0
 
     const nextState = talentData
       // Update total skill points spent
       .setIn(
         ['availableSkillPoints'],
-        canRankUp ? talentDataJS.availableSkillPoints - 1 : talentDataJS.availableSkillPoints
+        decrement
+          ? canRankDown ? talentDataJS.availableSkillPoints + 1 : talentDataJS.availableSkillPoints
+          : canRankUp ? talentDataJS.availableSkillPoints - 1 : talentDataJS.availableSkillPoints
       )
       // Update skill points in tree
       .setIn(
         ['talentTrees', currentTreeIndex, 'skillPoints'],
-        canRankUp
-          ? talentData.getIn(['talentTrees', currentTreeIndex, 'skillPoints']) + 1
-          : talentData.getIn(['talentTrees', currentTreeIndex, 'skillPoints'])
+        decrement
+          ? canRankDown
+            ? talentData.getIn(['talentTrees', currentTreeIndex, 'skillPoints']) - 1
+            : talentData.getIn(['talentTrees', currentTreeIndex, 'skillPoints'])
+          : canRankUp
+            ? talentData.getIn(['talentTrees', currentTreeIndex, 'skillPoints']) + 1
+            : talentData.getIn(['talentTrees', currentTreeIndex, 'skillPoints'])
       )
       // Update current rank of talent
       .setIn(
         [ ...path, 'currentRank' ],
-        canRankUp
-          ? talentData.getIn([ ...path, 'currentRank' ]) + 1
-          : talentData.getIn([ ...path, 'currentRank' ])
-
+        decrement
+          ? canRankDown
+            ? talentData.getIn([ ...path, 'currentRank' ]) - 1
+            : talentData.getIn([ ...path, 'currentRank' ])
+          : canRankUp
+            ? talentData.getIn([ ...path, 'currentRank' ]) + 1
+            : talentData.getIn([ ...path, 'currentRank' ])
       )
 
 
@@ -96,11 +110,18 @@ export default class TalentCalcBeta extends React.PureComponent {
 
   }
 
+  onSelectClass = name => {
+    this.props.navigation.replace(name)
+  }
+
   render() {
     const {
       pointsUsed,
       talentData,
     } = this.state
+
+    // const activeClass = this.props.navigation.getParam('activeClass', null)
+    const activeClass = this.props.activeClass
 
     const { talentTrees, ...classInfo } = talentData.toJS()
 
@@ -114,11 +135,10 @@ export default class TalentCalcBeta extends React.PureComponent {
     })
 
 
-    return <SafeAreaView style={[styles.container]}>
+    return <SafeAreaView style={[styles.container]} forceInset={{ top: 'never' }}>
 
-      <Header
-        availableSkillPoints={talentData.get('availableSkillPoints')}
-      />
+
+
 
       {
         <FullScreenSwiper

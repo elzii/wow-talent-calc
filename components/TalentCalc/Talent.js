@@ -1,6 +1,8 @@
 import React, { Fragment } from 'react';
-import { Alert, SafeAreaView, Dimensions, TouchableOpacity, StyleSheet, Text, View, ScrollView, Image, Modal } from 'react-native';
+import { Alert, SafeAreaView, Dimensions, TouchableHighlight, StyleSheet, Text, View, ScrollView, Image, Modal } from 'react-native';
 import { Tooltip } from 'react-native-elements'
+import { LongPressGestureHandler } from 'react-native-gesture-handler'
+
 
 
 import { getSkillImagePath } from './utils'
@@ -91,8 +93,10 @@ export default class Talent extends React.Component {
 
 
     return <View>
-      <TouchableOpacity
+      <TouchableHighlight
         onPress={this.onPress}
+        onLongPress={this.props.onLongPress}
+        //underlayColor={'white'}
         // disabled={!enabled}
         // onPress={() => Alert.alert(JSON.stringify(skillPointsInTree, null, 2))}
         activeOpacity={0.80}
@@ -127,7 +131,7 @@ export default class Talent extends React.Component {
             />
           </View>
 
-      </TouchableOpacity>
+      </TouchableHighlight>
     </View>
   }
 }
